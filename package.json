@@ -1,7 +1,7 @@
 {
   "name": "glade-lavanda",
   "version": "1.0.0",
-  "description": "Kit Glade Coleção Lavanda — loja com integração BullsCash (PIX)",
+  "description": "Kit Glade Coleção Lavanda — loja com integração BullsCash e PostgreSQL",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,6 +9,9 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "dependencies": {
+    "pg": "^8.13.3"
   },
   "license": "UNLICENSED"
 }
