@@ -1,0 +1,30 @@
+COLEÇÃO LAVANDA — LOJA E CHECKOUT
+
+Abra index.html em qualquer navegador moderno para ver a página de produto. O botão “Comprar agora” abre checkout.html.
+
+CHECKOUT LOCAL
+Para abrir a loja e registrar pedidos de demonstração no banco local, abra o Terminal nesta pasta e execute:
+
+node server.js
+
+Depois, acesse http://localhost:4173. O arquivo orders.db guarda somente: nome, e-mail, CEP, método de pagamento, final do cartão (quando aplicável), valor e data do pedido.
+
+CONSULTA DE CEP
+O checkout consulta o endereço pelo ViaCEP assim que o CEP é preenchido. O valor e o prazo de frete exigem uma conta e uma tabela de preços da transportadora ou plataforma logística escolhida; eles não podem ser calculados corretamente sem essas credenciais comerciais.
+
+SEGURANÇA DO CARTÃO
+Número completo, validade e CVV não são enviados nem gravados. O checkout é uma interface pronta para integração. Antes de aceitar pagamentos reais, conecte um intermediador certificado, como Mercado Pago, Stripe ou Asaas, usando tokenização no servidor e as credenciais da sua loja. O QR Code PIX também deve ser gerado por esse provedor.
+
+ANTES DE PUBLICAR
+Confirme com o vendedor volumes, acessórios, composição, disponibilidade, frete, contato, políticas de troca e garantia. Revise e mantenha apenas avaliações reais autorizadas. Fotos e textos das avaliações foram fornecidos para este layout.
+
+ARQUIVOS PRINCIPAIS
+index.html — página de produto
+checkout.html — página de finalização
+styles.css e checkout.css — visual responsivo
+script.js e checkout.js — interações do navegador
+server.js — servidor local e banco SQLite seguro
+orders.db — banco local de pedidos
+assets/ — imagens do produto e avaliações
+
+Não há fontes, bibliotecas, rastreamento ou imagens externas.

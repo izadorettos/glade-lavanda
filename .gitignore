@@ -1,0 +1,16 @@
+# Banco de dados local (será criado automaticamente no servidor)
+orders.db
+orders.db-shm
+orders.db-wal
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Ambiente
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db

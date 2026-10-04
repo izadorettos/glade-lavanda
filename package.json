@@ -1,0 +1,14 @@
+{
+  "name": "glade-lavanda",
+  "version": "1.0.0",
+  "description": "Kit Glade Coleção Lavanda — loja com integração BullsCash (PIX)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "UNLICENSED"
+}
