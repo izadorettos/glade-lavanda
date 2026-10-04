@@ -214,6 +214,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.on('error', error => console.error(`Erro no servidor: ${error.message}`));
-server.listen(process.env.PORT || 4173, '127.0.0.1', () =>
-  console.log('Loja disponivel em http://localhost:4173')
+const PORT = process.env.PORT || 4173;
+server.listen(PORT, '0.0.0.0', () =>
+  console.log(`Loja disponivel em http://0.0.0.0:${PORT}`)
 );
