@@ -38,3 +38,8 @@ Consulte os pedidos com:
 ```bash
 node -e "const {DatabaseSync}=require('node:sqlite');const db=new DatabaseSync('./orders.db');console.table(db.prepare('SELECT * FROM orders ORDER BY id DESC').all())"
 ```
+## Cloudflare Pages + D1
+
+O projeto está pronto para Cloudflare Pages. Ao criar o projeto no painel, deixe o comando de build vazio e o diretório de saída como `.`. Em **Settings > Bindings**, conecte um banco D1 à variável `ORDERS_DB` e execute o conteúdo de `schema.sql` na aba de consultas do D1.
+
+O endpoint `POST /api/orders` grava somente dados do pedido e os quatro últimos dígitos do cartão. Número completo, validade e CVV nunca são aceitos pelo endpoint.
